@@ -84,10 +84,12 @@ function createUi() {
     const list = document.createElement('ul');
     const userNamesLi = [];
     for (const val of values) {
-      const li = document.createElement('li');
-      li.innerText = val.trim();
-      list.appendChild(li);
-      userNamesLi.push(li);
+      if (isNaN(val)) {
+        const li = document.createElement('li');
+        li.innerText = val.trim();
+        list.appendChild(li);
+        userNamesLi.push(li);
+      }
     }
     ui.appendChild(list);
     list.style.height = '550px';
