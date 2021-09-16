@@ -1,9 +1,8 @@
-
 /**
  * BGA Bulk Tournament invitation.
  *
  * Script to invite a list of players to a new tournament.
- * 
+ *
  * Usage:
  *  1. Copy and paste this code to the developer console
  *     (or put it as a bookmarklet https://caiorss.github.io/bookmarklet-maker/)
@@ -15,10 +14,20 @@
 (function() {
     'use strict';
 
-const TOURNAMENT_ID = /.*tournament\?id=(\d+)/.exec(window.location.href)[1];
+let TOURNAMENT_ID;
+let INVITE_URL;
+
+if (/.*tournament\?id=(\d+)/.exec(window.location.href)) {
+  TOURNAMENT_ID = /.*tournament\?id=(\d+)/.exec(window.location.href)[1];
+  INVITE_URL    = 'https://boardgamearena.com/tournament/tournament/invitePlayer.html';
+}
+else {
+  TOURNAMENT_ID = /.*group\?id=(\d+)/.exec(window.location.href)[1];
+  INVITE_URL    = 'https://boardgamearena.com/community/community/inviteGroup.html'
+}
 const REQUEST_INTERVAL = 1500;
 
-/** 
+/**
  TODO: Tampermonkey script
   const normalInvite = document.getElementById('invite_to_groupe_toggle');
   if (normalInvite) {
@@ -94,15 +103,21 @@ function createUi() {
     ui.appendChild(list);
     list.style.height = '550px';
     list.style.overflow = 'scroll';
-    
 
     button.innerText = 'Bulk Invite';
     button.onclick = async function() {
       button.style.display = 'none';
 
+      const invitedPlayers = Array.from(document.querySelectorAll('.tournaments-registered-players__name')).map(e => e.text);
+
       for (const unameLi of userNamesLi) {
         try {
-          const playerId = getPlayerId(unameLi.innerText);
+          const playerName = unameLi.innerText;
+          if (invitedPlayers.includes(playerName)) {
+            throw 'This player is already a member of this group';
+          }
+
+          const playerId = getPlayerId(playerName);
           invite(playerId);
           unameLi.style.color = 'green';
           unameLi.innerText += ': Done';
@@ -131,7 +146,7 @@ function createUi() {
  */
 function invite(playerId) {
   const response = dojo.xhrGet({
-    url: 'https://boardgamearena.com/tournament/tournament/invitePlayer.html',
+    url: INVITE_URL,
     sync: true,
     content: { id: TOURNAMENT_ID, player: playerId },
     handleAs: 'json'
