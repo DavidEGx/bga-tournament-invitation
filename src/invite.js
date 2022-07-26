@@ -149,6 +149,7 @@ function invite(playerId) {
     url: INVITE_URL,
     sync: true,
     content: { id: TOURNAMENT_ID, player: playerId },
+    headers: { 'X-Request-Token': bgaConfig.requestToken },
     handleAs: 'json'
   });
 
